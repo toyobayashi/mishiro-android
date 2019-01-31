@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.github.toyobayashi.mishiro" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <feature name="File">
+        <param name="android-package" value="org.apache.cordova.file.FileUtils" />
+        <param name="onload" value="true" />
+    </feature>
+    <allow-navigation href="cdvfile:*" />
+    <feature name="FileTransfer">
+        <param name="android-package" value="org.apache.cordova.filetransfer.FileTransfer" />
+    </feature>
+    <feature name="CDVOrientation">
+        <param name="android-package" value="cordova.plugins.screenorientation.CDVOrientation" />
+    </feature>
+    <feature name="Whitelist">
+        <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Client">
+        <param name="android-package" value="com.github.toyobayashi.cgss.Client" />
+    </feature>
+    <feature name="MyToast">
+        <param name="android-package" value="com.github.toyobayashi.toast.MyToast" />
+    </feature>
+    <feature name="StatusBar">
+        <param name="android-package" value="org.apache.cordova.statusbar.StatusBar" />
+        <param name="onload" value="true" />
+    </feature>
+    <name>mishiro</name>
+    <description>
+        mishiro score viewer app.
+    </description>
+    <author email="lifenglin314@outlook.com" href="https://github.com/toyobayashi/">
+        toyobayashi
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <access origin="cdvfile://*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <allow-intent href="market:*" />
+    <icon density="mdpi" src="res/custom-icon/mipmap-mdpi/ic_launcher.png" />
+    <icon density="hdpi" src="res/custom-icon/mipmap-hdpi/ic_launcher.png" />
+    <icon density="xhdpi" src="res/custom-icon/mipmap-xhdpi/ic_launcher.png" />
+    <icon density="xxhdpi" src="res/custom-icon/mipmap-xxhdpi/ic_launcher.png" />
+    <icon density="xxxhdpi" src="res/custom-icon/mipmap-xxxhdpi/ic_launcher.png" />
+    <preference name="loglevel" value="DEBUG" />
+    <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+    <preference name="AndroidExtraFilesystems" value="sdcard" />
+</widget>

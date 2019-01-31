@@ -1,0 +1,12 @@
+{
+  "name": "cordova-plugin-mytoast",
+  "version": "0.0.1",
+  "description": "",
+  "author": "toyobayashi",
+  "cordova": {
+    "id": "cordova-plugin-mytoast",
+    "platforms": [
+      "android"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-cgss" version="0.0.1" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+    <name>Client</name>
+    <js-module name="Client" src="www/Client.js">
+        <clobbers target="cordova.plugins.Client" />
+    </js-module>
+
+    <platform name="android">
+        <source-file src="src/android/Client.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/CGSSClient.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/CheckAsyncTask.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/LZ4Decompressor.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/Msgpack.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/Rijndael.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/RijndaelBlock.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/RijndaelPreCalculated.java" target-dir="src/com/github/toyobayashi/cgss/" />
+        <source-file src="src/android/RijndaelUtil.java" target-dir="src/com/github/toyobayashi/cgss/" />
+
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="Client">
+                <param name="android-package" value="com.github.toyobayashi.cgss.Client" />
+            </feature>
+        </config-file>
+    </platform>
+</plugin>

@@ -1,0 +1,8 @@
+{
+  "devServerHost": "localhost",
+  "devServerPort": 9080,
+  "outputPath": "../platforms/android/app/src/main/assets/www",
+  "contentBase": "../platforms/android/app/src/main/assets/www",
+  "publicPath": "/",
+  "open": true
+}

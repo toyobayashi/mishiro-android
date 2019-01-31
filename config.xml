@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.github.toyobayashi.mishiro" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>mishiro</name>
+    <description>
+        mishiro score viewer app.
+    </description>
+    <author email="lifenglin314@outlook.com" href="https://github.com/toyobayashi/">
+        toyobayashi
+    </author>
+    <content src="index.html" />
+    <access origin="*" />
+    <access origin="cdvfile://*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <allow-intent href="tel:*" />
+    <allow-intent href="sms:*" />
+    <allow-intent href="mailto:*" />
+    <allow-intent href="geo:*" />
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+        <application android:usesCleartextTraffic="true" />
+    </edit-config>
+    <platform name="android">
+        <allow-intent href="market:*" />
+        <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+        <preference name="AndroidExtraFilesystems" value="sdcard" />
+        <icon density="mdpi" src="res/custom-icon/mipmap-mdpi/ic_launcher.png" />
+        <icon density="hdpi" src="res/custom-icon/mipmap-hdpi/ic_launcher.png" />
+        <icon density="xhdpi" src="res/custom-icon/mipmap-xhdpi/ic_launcher.png" />
+        <icon density="xxhdpi" src="res/custom-icon/mipmap-xxhdpi/ic_launcher.png" />
+        <icon density="xxxhdpi" src="res/custom-icon/mipmap-xxxhdpi/ic_launcher.png" />
+    </platform>
+    <platform name="ios">
+        <allow-intent href="itms:*" />
+        <allow-intent href="itms-apps:*" />
+    </platform>
+    <plugin name="cordova-plugin-whitelist" spec="1" />
+    <plugin name="cordova-plugin-screen-orientation" spec="~3.0.1" />
+    <plugin name="cordova-plugin-file" spec="~6.0.1" />
+    <plugin name="cordova-plugin-file-transfer" spec="~1.7.1" />
+    <plugin name="cordova-plugin-mytoast" spec=".\custom-plugins\cordova-plugin-mytoast" />
+    <plugin name="cordova-plugin-cgss" spec=".\custom-plugins\cordova-plugin-cgss" />
+    <engine name="android" spec="^7.1.4" />
+    <plugin name="cordova-plugin-statusbar" spec="^2.4.2" />
+</widget>

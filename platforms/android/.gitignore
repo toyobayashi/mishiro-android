@@ -1,0 +1,34 @@
+.gradle
+.idea
+/local.properties
+# /.idea/caches/build_file_checksums.ser
+# /.idea/libraries
+# /.idea/modules.xml
+# /.idea/workspace.xml
+.DS_Store
+build
+/captures
+.externalNativeBuild
+
+/app/src/main/assets/www/*
+!/app/src/main/assets/www/cordova-js-src
+!/app/src/main/assets/www/plugins
+!/app/src/main/assets/www/cordova_plugins.js
+!/app/src/main/assets/www/cordova.js
+
+!/app/src/main/assets/www/img
+
+!/cordova/*
+
+# Non-project-specific build files:
+build.xml
+/gradlew
+/gradlew.bat
+/gradle
+# Ant builds
+ant-build
+ant-gen
+# Eclipse builds
+gen
+out
+# Gradle builds

@@ -1,0 +1,12 @@
+{
+  "name": "cordova-plugin-cgss",
+  "version": "0.0.1",
+  "description": "",
+  "author": "toyobayashi",
+  "cordova": {
+    "id": "cordova-plugin-cgss",
+    "platforms": [
+      "android"
+    ]
+  }
+}

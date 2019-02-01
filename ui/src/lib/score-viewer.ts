@@ -1,4 +1,4 @@
-import axios from '../config/axios'
+// import axios from '../config/axios'
 import Global, { globalInstance } from './global'
 import { ScoreNote } from '../type/types'
 import Note, { ScoreNoteWithNoteInstance } from './note'
@@ -25,21 +25,21 @@ class ScoreViewer {
 
   private static _id: number
   private static _difficulty: number
-  private static _data: any
+  // private static _data: any
   private static _name: string
 
-  public static async main (el: any, id?: any, difficulty?: any): Promise<ScoreViewer> {
-    ScoreViewer._data = (await axios.get('./data.json')).data
-    ScoreViewer._id = id || ScoreViewer._data.default.id
-    ScoreViewer._difficulty = difficulty || ScoreViewer._data.default.score
-    const live = ScoreViewer._data.music.find((live: { id: number; name: string }) => live.id === ScoreViewer._id)
-    ScoreViewer._name = live ? live.name.replace(/\\n/g, '') : 'Score'
+  public static async main (el: any, id: string, fileName: string, difficulty: string, csv: string): Promise<ScoreViewer> {
+    // ScoreViewer._data = (await axios.get('./data.json')).data
+    ScoreViewer._id = Number(id)
+    ScoreViewer._difficulty = Number(difficulty)
+    // const live = ScoreViewer._data.music.find((live: { id: number; name: string }) => live.id === ScoreViewer._id)
+    ScoreViewer._name = fileName.split('-')[1].split('.')[0]
     document.getElementsByTagName('title')[0].innerHTML = ScoreViewer._name
-    const csv = (await axios.get(`./res/${ScoreViewer._id}-${ScoreViewer._difficulty}.csv`)).data
+    // const csv = (await axios.get(`./res/${ScoreViewer._id}-${ScoreViewer._difficulty}.csv`)).data
     const { fullCombo, score } = Global.createScore(csv)
     return ScoreViewer.init({
-      src: `./res/${ScoreViewer._id}.mp3`,
-      // src: `${window.cordova.file.externalDataDirectory}${ScoreViewer._id}.mp3`,
+      // src: `./res/${ScoreViewer._id}.mp3`,
+      src: `${window.cordova.file.externalDataDirectory}live/${fileName}`,
       fullCombo,
       score
     }, el)

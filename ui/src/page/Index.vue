@@ -66,7 +66,7 @@
   </div>
 
   <div class="footer" v-show="currentPlaying">
-    <Btn theme="ok" style="margin: 3px 0;">谱面</Btn>
+    <Btn theme="ok" style="margin: 3px 0;" @click.native="scoreClicked">谱面</Btn>
     <div class="player">
       <div class="audio-title flex-center">
         <span class="text">{{currentPlaying ? currentPlaying.fileName.split('.')[0] : ''}}</span>
@@ -74,6 +74,8 @@
       <BtnProgress :loaded="audioProgress" class="btn-play" :type="isPlaying ? 'pause' : 'play'" @click.native="pauseBtnClicked" />
     </div>
   </div>
+
+  <ModalDifficulty />
 </div>
 </template>
 

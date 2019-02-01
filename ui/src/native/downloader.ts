@@ -69,6 +69,7 @@ class Downloader {
             if (onProgress) onProgress(data)
           }
         } else {
+          if (onProgress) onProgress(data)
           resolve(this._path)
         }
       }, (err) => {
@@ -122,6 +123,17 @@ export async function downloadMaster (resver: string, hash: string, onProgress?:
   return file
 }
 
+export async function downloadScore (score: string, hash: string, onProgress?: (data: ProgressData) => void) {
+  const file = `${window.cordova.file.externalDataDirectory}score/${score}`
+  const ex = await exists(file)
+  if (!ex) {
+    const dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/Generic/${hash}`, file + '.lz4')
+    await dl.download(onProgress)
+    await lz4dec(file + '.lz4')
+    await unlink(file + '.lz4')
+  }
+  return file
+}
 // export function download (url: string, path: string, onProgress?: (data: { loaded: number; total: number; percentage: number; computable: boolean; ended: boolean }) => void) {
 //   return new Promise<void>((resolve, reject) => {
 //     cordova.exec((data) => {

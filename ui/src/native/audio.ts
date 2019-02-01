@@ -11,6 +11,7 @@ export function wav2mp3 (wavPath: string, mp3Path: string, onProgress?: (data: P
           if (onProgress) onProgress(data)
         }
       } else {
+        if (onProgress) onProgress(data)
         resolve()
       }
     }, (err) => {

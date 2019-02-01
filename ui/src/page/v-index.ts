@@ -2,12 +2,13 @@ import { Vue, Component } from 'vue-property-decorator'
 import { Route } from 'vue-router'
 // import axios from '../config/axios'
 // import { exists, unlink } from '../native/cordova-fs'
-import Downloader, { downloadManifest, downloadMaster } from '../native/downloader'
+import Downloader, { downloadManifest, downloadMaster, downloadScore } from '../native/downloader'
 import DB from '../native/db'
-import { setFullScreen, getPath/*, lz4dec , toast check*/ } from '../native/util'
+import { setFullScreen, getPath, check/*, lz4dec , toast */ } from '../native/util'
 import Item from '../component/Item.vue'
 import Btn from '../component/Btn.vue'
 import BtnProgress from '../component/BtnProgress.vue'
+import ModalDifficulty from '../component/ModalDifficulty.vue'
 import Spinner from '../component/Spinner.vue'
 import { exists, mkdirs, unlink, rmrf } from '../native/cordova-fs'
 import { acb2hca, hca2wav, wav2mp3 } from '../native/audio'
@@ -35,6 +36,10 @@ type BGMItem = {
   loaded: number;
   status: string;
   dl: Downloader | null;
+
+  bpm?: number;
+  score?: string;
+  scoreHash?: string;
 }
 
 @Component({
@@ -42,7 +47,8 @@ type BGMItem = {
     Item,
     Btn,
     BtnProgress,
-    Spinner
+    Spinner,
+    ModalDifficulty
   },
   directives: {
     audioInit: {
@@ -100,8 +106,64 @@ export default class Index extends Vue {
 
   audio: HTMLAudioElement
   audioProgress: number = 0
-  currentPlaying: any = null
+  currentPlaying: BGMItem | LiveItem | null = null
   isPlaying: boolean = false
+
+  async scoreClicked () {
+    if (!this.currentPlaying) {
+      this.alert('无正在播放的曲子')
+      return
+    }
+    if (!this.currentPlaying.score || !this.currentPlaying.scoreHash) {
+      this.alert('当前播放的曲子没有谱面')
+      return
+    }
+
+    this.showLoading('正在下载谱面')
+    const scoreFile = await downloadScore(this.currentPlaying.score, this.currentPlaying.scoreHash, (data) => {
+      this.setLoading(data.percentage)
+    })
+    this.hideLoading()
+    // this.alert(scorePath)
+    let bdb = await DB.openDatabase(scoreFile)
+    let rows = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/__.csv" ESCAPE '/'`)
+    // await bdb.close()
+    const difficulty = await this.showScoreDifficulty(this.currentPlaying, rows.length === 5 ? true : false)
+    if (difficulty) {
+      const csv = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/_${difficulty}.csv" ESCAPE '/'`)
+      await bdb.close()
+      let realCsv = ''
+      if (typeof csv[0].data !== 'string') {
+        let dataString = ''
+        for (let i = 0; i < csv[0].data.length; i++) {
+          dataString += String.fromCharCode(csv[0].data[i])
+        }
+        realCsv = dataString
+      } else {
+        realCsv = csv[0].data
+      }
+      this.$router.push({
+        name: 'score',
+        params: {
+          id: this.currentPlaying.name.split('/')[1].split('.')[0].split('_')[1],
+          fileName: this.currentPlaying.fileName,
+          difficulty,
+          csv: realCsv
+        }
+      })
+    } else {
+      await bdb.close()
+    }
+    // this.bus.$emit('difficulty', this.currentPlaying, rows.length === 5 ? true : false)
+  }
+
+  showScoreDifficulty (live: any, hasMasterPlus: boolean) {
+    return new Promise<string>((resolve) => {
+      this.bus.$emit('difficulty', live, hasMasterPlus, (res: string) => {
+        resolve(res)
+      })
+    })
+  }
 
   pauseBtnClicked () {
     if (this.isPlaying) {
@@ -174,11 +236,13 @@ export default class Index extends Vue {
       })
       await Promise.all([rmrf('file://' + hcaDir), unlink(acbPath)])
       item.status = 'finished'
-      this.audio.src = getPath(`live/${item.fileName}`)
-      this.audio.currentTime = 0
-      this.audio.play()
-      this.currentPlaying = item
-      this.isPlaying = true
+      if (this.$route.name === 'index') {
+        this.audio.src = getPath(`live/${item.fileName}`)
+        this.audio.currentTime = 0
+        this.audio.play()
+        this.currentPlaying = item
+        this.isPlaying = true
+      }
     } else if (item.name.split('/')[0] === 'b') {
       item.dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/High/Sound/Common/b/${item.hash}`, getPath(`bgm/${item.name.split('/')[1]}`))
       const acbPath = await item.dl.download((data) => {
@@ -195,11 +259,13 @@ export default class Index extends Vue {
       })
       await Promise.all([rmrf('file://' + hcaDir), unlink(acbPath)])
       item.status = 'finished'
-      this.audio.src = getPath(`bgm/${item.fileName}`)
-      this.audio.currentTime = 0
-      this.audio.play()
-      this.currentPlaying = item
-      this.isPlaying = true
+      if (this.$route.name === 'index') {
+        this.audio.src = getPath(`bgm/${item.fileName}`)
+        this.audio.currentTime = 0
+        this.audio.play()
+        this.currentPlaying = item
+        this.isPlaying = true
+      }
     }
   }
   async stopClicked (item: LiveItem | BGMItem) {
@@ -215,9 +281,18 @@ export default class Index extends Vue {
       this.alert(err)
     }
   }
-  pressed (item: LiveItem | BGMItem) {
-    console.log('pressed')
-    console.log(item)
+  async pressed (item: LiveItem | BGMItem) {
+    if (item.status === 'finished') {
+      const res = await this.confirm('是否要删除' + item.fileName.split('.')[0] + '？')
+      if (res) {
+        await unlink(item.name.split('/')[0] === 'l' ? getPath(`live/${item.fileName}`) : getPath(`bgm/${item.fileName}`))
+        item.status = 'stoped'
+        item.loaded = 0
+        this.audio.pause()
+        this.currentPlaying = null
+        this.isPlaying = false
+      }
+    }
   }
 
   swipeRight () {
@@ -313,6 +388,14 @@ export default class Index extends Vue {
         console.log(this.liveList)
         this.bgmListDisplay = this.bgmList = await this.getBGMList()
         console.log(this.bgmList)
+        if (this.manifestDatabase) {
+          await this.manifestDatabase.close()
+          this.manifestDatabase = null
+        }
+        if (this.masterDatabase) {
+          await this.masterDatabase.close()
+          this.masterDatabase = null
+        }
       } catch (err) {
         console.log(err)
         this.hideLoading()
@@ -344,7 +427,7 @@ export default class Index extends Vue {
 
   async getLatestResource () {
     this.showLoading('正在获取数据库版本')
-    const resver: string = /* await check() */ '10050800'
+    const resver: string = await check() // '10050800'
     this.resver = resver
     window.localStorage.setItem('mishiroResVer', resver)
     this.setLoading('正在下载资源清单数据库')

@@ -6,20 +6,21 @@ import { setFullScreen } from '../native/util'
 
 @Component({
   beforeRouteEnter (_to: Route, _from: Route, next: (cb: (vm: Score) => any) => void) {
+
     if (window.cordova) {
       window.screen.orientation.lock('landscape').then(() => {
         StatusBar.hide()
         return setFullScreen(true)
       }).then(() => next(async (vm) => {
-        vm.scoreviewer = await ScoreViewer.main(vm.$el, vm.$route.params.id, vm.$route.params.difficulty)
+        vm.scoreviewer = await ScoreViewer.main(vm.$el, vm.$route.params.id, vm.$route.params.fileName, vm.$route.params.difficulty, vm.$route.params.csv)
       })).catch(err => {
         console.log(err.message)
         console.log(err.stack)
       })
     } else {
-      next(async (vm) => {
-        vm.scoreviewer = await ScoreViewer.main(vm.$el, vm.$route.params.id, vm.$route.params.difficulty)
-      })
+      // next(async (vm) => {
+      //   vm.scoreviewer = await ScoreViewer.main(vm.$el, vm.$route.params.id, vm.$route.params.difficulty)
+      // })
     }
   },
   beforeRouteLeave (_to: Route, _from: Route, next: any) {

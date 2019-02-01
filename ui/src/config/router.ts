@@ -19,7 +19,8 @@ export default function createRouter () {
         name: 'score',
         meta: {
           keepAlive: false
-        }
+        },
+        props: true
       }
     ]
   })

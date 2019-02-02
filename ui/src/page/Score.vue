@@ -1,6 +1,8 @@
 <template>
 <div>
   <div style="background: rgba(0,0,0,0.8);position:fixed;width:100%;height:100%"></div>
+  <Btn style="position:absolute;z-index:100;top:2%;left:1%" @click.native="playClicked">{{playBtnText}}</Btn>
+  <Btn style="position:absolute;z-index:100;top:calc(2% + 84px);left:1%" theme="ok" @click.native="saveClicked">保存</Btn>
 </div>
 </template>
 

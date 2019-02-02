@@ -3,6 +3,7 @@ import ScoreViewer from '../lib/score-viewer'
 import { globalInstance } from '../lib/global'
 import { Route } from 'vue-router'
 import { setFullScreen } from '../native/util'
+import Btn from '../component/Btn.vue'
 
 @Component({
   beforeRouteEnter (_to: Route, _from: Route, next: (cb: (vm: Score) => any) => void) {
@@ -27,9 +28,22 @@ import { setFullScreen } from '../native/util'
     globalInstance.audio.pause()
     this.scoreviewer.removeAllEventListener()
     next()
+  },
+  components: {
+    Btn
   }
 })
 export default class Score extends Vue {
 
   public scoreviewer: ScoreViewer
+  public playBtnText: string = '暂停'
+
+  public playClicked (): void {
+    this.scoreviewer.pauseOnClick(this)
+  }
+
+  public saveClicked (): void {
+    this.scoreviewer.saveOnClick()
+  }
+
 }

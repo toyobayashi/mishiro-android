@@ -72,8 +72,8 @@ class ScoreViewer {
   public saveCtx: CanvasRenderingContext2D
   public song: Song<ScoreNoteWithNoteInstance>
   // public audio: HTMLAudioElement
-  public pauseButton: HTMLButtonElement
-  public saveButton: HTMLButtonElement
+  // public pauseButton: HTMLButtonElement
+  // public saveButton: HTMLButtonElement
   public rangeInput: HTMLInputElement
   public speedInput: HTMLInputElement
   public options: Option = {
@@ -94,14 +94,14 @@ class ScoreViewer {
 
   private _onplay = () => {
     this._isPaused = false
-    this.pauseButton.innerHTML = 'pause'
-    this.pauseButton.className = 'cgss-btn cgss-btn-star'
+    // this.pauseButton.innerHTML = 'pause'
+    // this.pauseButton.className = 'cgss-btn cgss-btn-star'
   }
 
   private _onpause = () => {
     this._isPaused = true
-    this.pauseButton.innerHTML = 'play'
-    this.pauseButton.className = 'cgss-btn cgss-btn-ok'
+    // this.pauseButton.innerHTML = 'play'
+    // this.pauseButton.className = 'cgss-btn cgss-btn-ok'
   }
 
   private _ontimeupdate = () => {
@@ -117,8 +117,8 @@ class ScoreViewer {
 
     window.removeEventListener('resize', this._onresize)
 
-    this.pauseButton.removeEventListener('click', this._pauseOnClick)
-    this.saveButton.removeEventListener('click', this._saveOnClick)
+    // this.pauseButton.removeEventListener('click', this._pauseOnClick)
+    // this.saveButton.removeEventListener('click', this._saveOnClick)
     this.rangeInput.removeEventListener('input', this._rangeOnInput)
     this.speedInput.removeEventListener('input', this._speedOnInput)
   }
@@ -478,16 +478,18 @@ class ScoreViewer {
     }
   }
 
-  private _pauseOnClick = () => {
+  public pauseOnClick = (vm?: any) => {
     globalInstance.playSe()
     if (this._isPaused) {
       this.start()
+      if (vm) vm.playBtnText = '暂停'
     } else {
       this.stop()
+      if (vm) vm.playBtnText = '播放'
     }
   }
 
-  private _saveOnClick = () => {
+  public saveOnClick = () => {
     globalInstance.playSeOk()
     this._saveScore()
   }
@@ -511,23 +513,23 @@ class ScoreViewer {
 
     // this.frontCanvas.className = this.backCanvas.className = 'canvas canvas-center'
 
-    this.pauseButton = document.createElement('button')
-    this.pauseButton.innerHTML = 'play'
-    this.pauseButton.addEventListener('click', this._pauseOnClick, false)
-    this.pauseButton.className = 'cgss-btn cgss-btn-ok'
-    this.pauseButton.style.position = 'absolute'
-    this.pauseButton.style.zIndex = '2000'
-    this.pauseButton.style.top = '2%'
-    this.pauseButton.style.left = '1%'
+    // this.pauseButton = document.createElement('button')
+    // this.pauseButton.innerHTML = 'play'
+    // this.pauseButton.addEventListener('click', this._pauseOnClick, false)
+    // this.pauseButton.className = 'cgss-btn cgss-btn-ok'
+    // this.pauseButton.style.position = 'absolute'
+    // this.pauseButton.style.zIndex = '2000'
+    // this.pauseButton.style.top = '2%'
+    // this.pauseButton.style.left = '1%'
 
-    this.saveButton = document.createElement('button')
-    this.saveButton.innerHTML = 'save'
-    this.saveButton.addEventListener('click', this._saveOnClick, false)
-    this.saveButton.className = 'cgss-btn cgss-btn-ok'
-    this.saveButton.style.position = 'absolute'
-    this.saveButton.style.zIndex = '2000'
-    this.saveButton.style.top = 'calc(2% + 84px)'
-    this.saveButton.style.left = '1%'
+    // this.saveButton = document.createElement('button')
+    // this.saveButton.innerHTML = 'save'
+    // this.saveButton.addEventListener('click', this._saveOnClick, false)
+    // this.saveButton.className = 'cgss-btn cgss-btn-ok'
+    // this.saveButton.style.position = 'absolute'
+    // this.saveButton.style.zIndex = '2000'
+    // this.saveButton.style.top = 'calc(2% + 84px)'
+    // this.saveButton.style.left = '1%'
 
     this.rangeInput = document.createElement('input')
     this.rangeInput.type = 'range'
@@ -579,8 +581,8 @@ class ScoreViewer {
       el.appendChild(this.backCanvas)
     }
     el.appendChild(this.frontCanvas)
-    el.appendChild(this.pauseButton)
-    el.appendChild(this.saveButton)
+    // el.appendChild(this.pauseButton)
+    // el.appendChild(this.saveButton)
     el.appendChild(this.rangeInput)
     el.appendChild(this.speedInput)
     el.appendChild(comboWrap)

@@ -48,4 +48,12 @@
   justify-content: space-between;
   align-items: center;
 }
+.a, .a:visited {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.a:hover {
+  text-decoration: underline;
+}
 </style>

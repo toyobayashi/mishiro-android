@@ -1,10 +1,8 @@
 import { Vue, Component } from 'vue-property-decorator'
 import { Route } from 'vue-router'
-// import axios from '../config/axios'
-// import { exists, unlink } from '../native/cordova-fs'
 import Downloader, { downloadManifest, downloadMaster, downloadScore } from '../native/downloader'
 import DB from '../native/db'
-import { setFullScreen, getPath/*, check, lz4dec */ } from '../native/util'
+import { setFullScreen, getPath, check } from '../native/util'
 import Item from '../component/Item.vue'
 import Btn from '../component/Btn.vue'
 import BtnProgress from '../component/BtnProgress.vue'
@@ -13,9 +11,6 @@ import Spinner from '../component/Spinner.vue'
 import { exists, mkdirs, unlink, rmrf } from '../native/cordova-fs'
 import { acb2hca, hca2wav, wav2mp3 } from '../native/audio'
 import * as path from 'path-browserify'
-// import { wav2mp3, acb2hca } from '../native/audio'
-
-// declare const LAST_UPDATE_TIME: string
 
 type LiveItem = {
   name: string;
@@ -82,11 +77,6 @@ type BGMItem = {
   }
 })
 export default class Index extends Vue {
-
-  // data: any = {
-  //   version: 'loading...'
-  // }
-  // time = LAST_UPDATE_TIME
 
   isBrowser: boolean = typeof cordova === 'undefined'
 
@@ -232,26 +222,6 @@ export default class Index extends Vue {
     }
   }
 
-  // @Watch('$route')
-  // afterEnter () {
-  //   toast(this.scrollValue.toString());
-  //   (this.$refs as any).audioList.scrollTop = this.scrollValue
-  // }
-  // get selectLive () {
-  //   if (!this.data || !this.data.list) return {}
-  //   const ids = Object.keys(this.data.list)
-  //   const res: any = []
-  //   for (let i = 0; i < this.data.music.length; i++) {
-  //     if (ids.indexOf(this.data.music[i].id.toString()) !== -1) {
-  //       res.push(this.data.music[i])
-  //     }
-  //   }
-  //   return res
-  // }
-
-  // get selectDifficulty () {
-  //   return this.data && this.data.list ? (this.data.list[this.currentLive] || []) : []
-  // }
   async downloadClicked (item: LiveItem | BGMItem) {
     if (item.dl) {
       this.alert('正在下载中')
@@ -444,27 +414,9 @@ export default class Index extends Vue {
     })
   }
 
-  // @Watch('$route')
-  async getData () {
-    // this.data = {
-    //   version: 'loading...'
-    // }
-    // try {
-    //   this.data = (await axios.get('./data.json')).data
-    //   this.currentLive = this.data.default.id
-    //   this.currentDiff = this.data.default.score
-    // } catch (err) {
-    //   console.log(err)
-    // }
-  }
-
-  go () {
-    this.$router.push({ name: 'score', params: { id: this.currentLive, difficulty: this.currentDiff } })
-  }
-
   async getLatestResource () {
     this.showLoading('正在获取数据库版本')
-    const resver: string = /* await check() */ '10050900'
+    const resver: string = await check() /* '10050900' */
     this.resver = resver
     window.localStorage.setItem('mishiroResVer', resver)
     this.setLoading('正在下载资源清单数据库')

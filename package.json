@@ -1,7 +1,7 @@
 {
   "name": "com.github.toyobayashi.mishiro",
   "displayName": "mishiro",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "mishiro score viewer app.",
   "main": "index.js",
   "scripts": {

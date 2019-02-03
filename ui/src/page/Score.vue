@@ -54,17 +54,17 @@
 .combo > .combo-number {
 	-webkit-text-stroke: 2px rgb(240,144,0);
 	color: #f0f0f0;
-	font-size: 80px;
+	font-size: 60px;
   font-weight: bold;
-  height: 80px;
-  line-height: 80px;
+  height: 60px;
+  line-height: 60px;
 }
 .combo > .combo-text {
 	-webkit-text-stroke: 1px rgb(240,144,0);
 	color: #f0f0f0;
-	font-size: 35px;
-  height: 35px;
-  line-height: 35px;
+	font-size: 25px;
+  height: 25px;
+  line-height: 25px;
 }
 
 .hp-bar{

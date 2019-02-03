@@ -2,7 +2,7 @@ import { Vue, Component } from 'vue-property-decorator'
 import { Route } from 'vue-router'
 import Downloader, { downloadManifest, downloadMaster, downloadScore } from '../native/downloader'
 import DB from '../native/db'
-import { setFullScreen, getPath, check } from '../native/util'
+import { setFullScreen, getPath, check, getVersion } from '../native/util'
 import Item from '../component/Item.vue'
 import Btn from '../component/Btn.vue'
 import BtnProgress from '../component/BtnProgress.vue'
@@ -83,6 +83,7 @@ export default class Index extends Vue {
   scrollValue: number = 0
 
   resver: string = ''
+  appVersion: string = ''
 
   tabList: string[] = ['LIVE', 'BGM']
   currentTab: string = 'LIVE'
@@ -109,8 +110,9 @@ export default class Index extends Vue {
 
   infoBtnClicked () {
     this.alert(`
-      <p>应用名称：mishiro-android</p>
-      <p>版本：1.0.0</p>
+      <p>应用名称：mishiro</p>
+      <p>版本：${this.appVersion}</p>
+      <p>资源版本：${this.resver}</p>
       <p>Git仓库：<a class="a" href="https://github.com/toyobayashi/mishiro-android">toyobayashi/mishiro-android</a></p>
       <p>PC版：<a class="a" href="https://github.com/toyobayashi/mishiro">toyobayashi/mishiro</a></p>
       <br/>
@@ -307,17 +309,26 @@ export default class Index extends Vue {
   swipeRight () {
     if (this.currentTab !== this.tabList[0]) {
       this.currentTab = this.tabList[this.tabList.indexOf(this.currentTab) - 1]
+      this.$nextTick(() => {
+        (this.$refs as any).audioList.scrollTop = 0
+      })
     }
   }
 
   swipeLeft () {
     if (this.currentTab !== this.tabList[this.tabList.length - 1]) {
       this.currentTab = this.tabList[this.tabList.indexOf(this.currentTab) + 1]
+      this.$nextTick(() => {
+        (this.$refs as any).audioList.scrollTop = 0
+      })
     }
   }
 
   tabClicked (tab: string) {
     this.currentTab = tab
+    this.$nextTick(() => {
+      (this.$refs as any).audioList.scrollTop = 0
+    })
   }
 
   clearText () {
@@ -390,12 +401,13 @@ export default class Index extends Vue {
         } , false)
 
         try {
-          const resver = await this.getLatestResource()
-          this.toast(resver)
+          this.appVersion = await getVersion()
+          await this.getLatestResource()
+          // this.toast(resver)
           this.liveListDisplay = this.liveList = await this.getLiveList()
-          console.log(this.liveList)
+          // console.log(this.liveList)
           this.bgmListDisplay = this.bgmList = await this.getBGMList()
-          console.log(this.bgmList)
+          // console.log(this.bgmList)
           if (this.manifestDatabase) {
             await this.manifestDatabase.close()
             this.manifestDatabase = null

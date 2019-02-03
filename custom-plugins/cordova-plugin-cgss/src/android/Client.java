@@ -1,8 +1,8 @@
 package com.github.toyobayashi.cgss;
 
+import android.content.pm.PackageManager;
 import android.util.Base64;
 import android.view.View;
-import android.view.WindowManager;
 
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
@@ -40,6 +40,17 @@ public class Client extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+
+        if (action.equals("getVersion")) {
+            PackageManager manager = cordova.getContext().getPackageManager();
+            try {
+                callbackContext.success(manager.getPackageInfo(cordova.getContext().getPackageName(), 0).versionName);
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                callbackContext.error(e.toString());
+            }
+            return true;
+        }
 
         if (action.equals("download")) {
             String url = args.getString(0);

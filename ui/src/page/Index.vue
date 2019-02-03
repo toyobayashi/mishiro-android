@@ -15,8 +15,6 @@
 
   <div class="tab flex-between">
     <div class="tab-item text-center" @click="tabClicked(tab)" :class="{ active: currentTab === tab }" v-for="tab in tabList" :key="tab">{{tab}}</div>
-    <!-- <div class="tab-item text-center active">LIVE</div>
-    <div class="tab-item text-center">BGM</div> -->
     <div class="underline" :style="{ left: currentTab === tabList[0] ? '10%' : '60%' }"></div>
   </div>
 
@@ -47,27 +45,10 @@
         @stop="stopClicked(item)"
         @press="pressed(item)" />
     </div>
-
-    <!-- <p class="text-center" style="margin-top: 40px;">请选择LIVE乐曲和难度。</p>
-    <p class="text-center">ライブ曲と難易度を選んでください。</p>
-    <p class="text-center">Select music and difficulty.</p>
-    
-    <div class="text-center"><select class="select" name="live" id="live" v-model="currentLive">
-      <option v-for="live in selectLive" :key="live.id" :value="live.id">{{live.name.replace(/\\n/g, '')}}</option>
-    </select></div>
-    <div class="text-center" style="margin-top:20px;"><select class="select" name="difficulty" id="difficulty" v-model="currentDiff">
-      <option v-for="diff in selectDifficulty" :value="diff" :key="diff">{{diff}}</option>
-    </select></div>
-
-    <div style="text-align:center;margin:20px 0;"><button id="go" style="width: 20%;height: 50px;font-size: 20px;" @click="go">GO</button></div>
-
-    <p class="text-center">Resource version: <span id="resver">{{data.version}}</span></p>
-    <p class="text-center">Latest update time: {{time}}</p>
-    <p class="text-center"><a href="https://github.com/toyobayashi/mishiro" target="_blank" class="a">mishiro desktop application</a></p> -->
   </div>
 
   <div class="footer" v-show="currentPlaying">
-    <Btn theme="ok" style="margin: 3px 0;" @click.native="scoreClicked">谱面</Btn>
+    <Btn theme="ok" style="margin: 3px 0;" @click.native="scoreClicked" v-if="currentPlaying && currentPlaying.score && currentPlaying.scoreHash">谱面</Btn>
     <div class="player">
       <div class="audio-title flex-center">
         <span class="text">{{currentPlaying ? currentPlaying.fileName.split('.')[0] : ''}}</span>

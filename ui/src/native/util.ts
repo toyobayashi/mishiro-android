@@ -44,3 +44,13 @@ export function getPath (...relative: string[]) {
 export function getPathNative (...relative: string[]) {
   return path.join(cordova.file.externalDataDirectory, ...relative).slice(5)
 }
+
+export function getVersion () {
+  return new Promise<string>((resolve, reject) => {
+    cordova.exec((version) => {
+      resolve(version)
+    }, (err) => {
+      reject(new Error(err))
+    }, 'Client', 'getVersion', [])
+  })
+}

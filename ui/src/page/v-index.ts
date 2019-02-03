@@ -108,6 +108,8 @@ export default class Index extends Vue {
   currentPlaying: BGMItem | LiveItem | null = null
   isPlaying: boolean = false
 
+  recheck: number = 0
+
   infoBtnClicked () {
     this.alert(`
       <p>应用名称：mishiro</p>
@@ -426,9 +428,24 @@ export default class Index extends Vue {
     })
   }
 
-  async getLatestResource () {
+  async getLatestResource (): Promise<string> {
     this.showLoading('正在获取数据库版本')
-    const resver: string = await check() /* '10050900' */
+    let resver: string = ''
+    try {
+      resver = await check() /* '10050900' */
+    } catch (err) {
+      if (err.message.indexOf('209') !== -1) {
+        if (this.recheck >= 3) {
+          this.recheck = 0
+          throw err
+        } else {
+          this.recheck++
+          return this.getLatestResource()
+        }
+      } else {
+        throw err
+      }
+    }
     this.resver = resver
     window.localStorage.setItem('mishiroResVer', resver)
     this.setLoading('正在下载资源清单数据库')

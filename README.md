@@ -25,7 +25,7 @@ cd ./mishiro-android/ui
 npm run prod
 ```
 
-Then import this project to Android Studio and build.
+Then import `platforms/android` to Android Studio and build.
 
 ## Copyright
 

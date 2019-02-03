@@ -375,7 +375,7 @@ class ScoreViewer {
         this.saveCtx.font = '12px -apple-system, BlinkMacSystemFont, Segoe WPC,Segoe UI, HelveticaNeue-Light, Noto Sans, Microsoft YaHei, PingFang SC, Hiragino Sans GB, Source Han Sans SC, Source Han Sans CN, Source Han Sans, sans-serif'
         this.saveCtx.fillStyle = '#fff'
         this.saveCtx.textAlign = 'center'
-        this.saveCtx.fillText('https://github.com/toyobayashi/mishiro-score-viewer', this.saveCanvas.width / 2, firstY - 7)
+        this.saveCtx.fillText('https://github.com/toyobayashi/mishiro-android', this.saveCanvas.width / 2, firstY - 7)
         // this.saveCtx.fillText(name, this.saveCanvas.width / 2, firstY - 7 - 16 * 3)
         // this.saveCtx.fillText(this.song.difficulty, this.saveCanvas.width / 2, firstY - 7 - 16 * 4)
         this.saveCtx.restore()

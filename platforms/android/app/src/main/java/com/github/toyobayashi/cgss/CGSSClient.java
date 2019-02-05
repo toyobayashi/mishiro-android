@@ -85,19 +85,19 @@ public class CGSSClient {
     }
 
     private static String b64encode(byte[] buff) {
-        return Base64.encodeToString(buff, Base64.DEFAULT).replaceAll("\n", "");
+        return Base64.encodeToString(buff, Base64.NO_WRAP);
     }
 
     private static String b64encode(String str) {
-        return Base64.encodeToString(str.getBytes(StandardCharsets.US_ASCII), Base64.DEFAULT).replaceAll("\n", "");
+        return Base64.encodeToString(str.getBytes(StandardCharsets.US_ASCII), Base64.NO_WRAP);
     }
 
     private static byte[] b64decode(String buff) {
-        return Base64.decode(buff, Base64.DEFAULT);
+        return Base64.decode(buff, Base64.NO_WRAP);
     }
 
     private static byte[] b64decode(byte[] str) {
-        return Base64.decode(str, Base64.DEFAULT);
+        return Base64.decode(str, Base64.NO_WRAP);
     }
 
     private static String $xFFFF32() {
@@ -181,15 +181,15 @@ public class CGSSClient {
         int responseCode = connection.getResponseCode();
 
         if (HttpURLConnection.HTTP_OK == responseCode) {
-            StringBuilder sb=new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             String readLine;
-            BufferedReader responseReader=new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-            while((readLine = responseReader.readLine())!=null){
-                sb.append(readLine).append("\n");
+            BufferedReader responseReader = new BufferedReader(new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
+            while((readLine = responseReader.readLine()) != null) {
+                sb.append(readLine);
             }
             responseReader.close();
             connection.disconnect();
-            String b64Body = sb.toString().replaceAll("\n", "");
+            String b64Body = sb.toString();
 
             return decryptBody(b64Body, bodyIV);
         }

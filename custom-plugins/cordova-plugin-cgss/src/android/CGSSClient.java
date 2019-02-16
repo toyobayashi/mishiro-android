@@ -17,6 +17,13 @@ import java.security.MessageDigest;
 import java.util.Random;
 
 public class CGSSClient {
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    private static native byte[] aesEncrypt(byte[] data, byte[] key, byte[] iv);
+    private static native byte[] aesDecrypt(byte[] data, byte[] key, byte[] iv);
+
     private String user;
     private String viewer;
     private String udid;
@@ -81,7 +88,7 @@ public class CGSSClient {
         this.viewer = accountArr[1];
         this.udid = accountArr[2];
         this.sid = "";
-        this.resVer = "10040400";
+        this.resVer = "10051400";
     }
 
     private static String b64encode(byte[] buff) {
@@ -111,14 +118,13 @@ public class CGSSClient {
 
     private static class CryptAES {
         private CryptAES() {}
-        public static byte[] encryptRJ256(String s, String iv, String key) {
-            RijndaelBlock rijndael = new RijndaelBlock(key, "cbc");
-            return rijndael.encrypt(s, 256, iv);
+
+        public static byte[] encryptRJ256(String s, byte[] iv, byte[] key) {
+            return CGSSClient.aesEncrypt(s.getBytes(), key, iv);
         }
 
-        public static byte[] decryptRJ256(byte[] b, String iv, String key) {
-            RijndaelBlock rijndael = new RijndaelBlock(key, "cbc");
-            return rijndael.decrypt(b, 256, iv);
+        public static byte[] decryptRJ256(byte[] b, byte[] iv, byte[] key) {
+            return CGSSClient.aesDecrypt(b, key, iv);
         }
     }
 
@@ -137,14 +143,32 @@ public class CGSSClient {
         }
     }
 
+    public static byte[] toByteArray(String hexString) {
+        if (hexString.equals("")) {
+            return null;
+        }
+        hexString = hexString.toLowerCase();
+        final byte[] byteArray = new byte[hexString.length() >> 1];
+        int index = 0;
+        for (int i = 0; i < hexString.length(); i++) {
+            if (index  > hexString.length() - 1)
+                return byteArray;
+            byte highDit = (byte) (Character.digit(hexString.charAt(index), 16) & 0xFF);
+            byte lowDit = (byte) (Character.digit(hexString.charAt(index + 1), 16) & 0xFF);
+            byteArray[i] = (byte) (highDit << 4 | lowDit);
+            index += 2;
+        }
+        return byteArray;
+    }
+
     public JSONObject post(String path, JSONObject args) throws IOException, JSONException {
-        String viewerIV = createRandomNumberString(32);
+        String viewerIV = createRandomNumberString(16);
         args.put("timezone", "09:00:00");
-        args.put("viewer_id", viewerIV + b64encode(CryptAES.encryptRJ256(this.viewer, viewerIV, new String(b64decode(VIEWER_ID_KEY)))));
+        args.put("viewer_id", viewerIV + b64encode(CryptAES.encryptRJ256(this.viewer, viewerIV.getBytes(StandardCharsets.US_ASCII), b64decode(VIEWER_ID_KEY))));
         String plain = b64encode(Msgpack.encode(args));
-        String key = b64encode($xFFFF32()).substring(0, 32);
-        String bodyIV = this.udid.replaceAll("-", "");
-        String body = b64encode(bufferConcat(CryptAES.encryptRJ256(plain, bodyIV, key), key.getBytes(StandardCharsets.US_ASCII)));
+        byte[] key = b64encode($xFFFF32()).substring(0, 32).getBytes();
+        byte[] bodyIV = toByteArray(this.udid.replaceAll("-", ""));
+        String body = b64encode(bufferConcat(CryptAES.encryptRJ256(plain, bodyIV, key), key));
         String sid = !this.sid.equals("") ? this.sid : (this.viewer + this.udid);
 
         URL url = new URL("https://apis.game.starlight-stage.jp" + path);
@@ -154,22 +178,22 @@ public class CGSSClient {
         connection.setRequestMethod("POST");
         connection.setUseCaches(false);
         connection.setInstanceFollowRedirects(true);
-        connection.setRequestProperty("USER_ID", CryptoGrapher.encode(this.user));
-        connection.setRequestProperty("DEVICE_NAME", "Nexus 42");
-        connection.setRequestProperty("APP_VER", "9.9.9");
-        connection.setRequestProperty("DEVICE_ID", md5("Totally a real Android"));
-        connection.setRequestProperty("GRAPHICS_DEVICE_NAME", "3dfx Voodoo2 (TM)");
+        connection.setRequestProperty("USER-ID", CryptoGrapher.encode(this.user));
+        connection.setRequestProperty("DEVICE-NAME", "Nexus 42");
+        connection.setRequestProperty("APP-VER", "9.9.9");
+        connection.setRequestProperty("DEVICE-ID", md5("Totally a real Android"));
+        connection.setRequestProperty("GRAPHICS-DEVICE-NAME", "3dfx Voodoo2 (TM)");
         connection.setRequestProperty("IDFA", "");
         connection.setRequestProperty("SID", md5(sid + new String(b64decode(SID_KEY))));
         connection.setRequestProperty("DEVICE", "2");
         connection.setRequestProperty("KEYCHAIN", "");
-        connection.setRequestProperty("PLATFORM_OS_VERSION", "Android OS 13.3.7 / API-42 (XYZZ1Y/74726f6c6c)");
+        connection.setRequestProperty("PLATFORM-OS-VERSION", "Android OS 13.3.7 / API-42 (XYZZ1Y/74726f6c6c)");
         connection.setRequestProperty("PARAM", sha1(this.udid + this.viewer + path + plain));
         connection.setRequestProperty("X-Unity-Version", "5.4.5p1");
         connection.setRequestProperty("CARRIER", "google");
-        connection.setRequestProperty("RES_VER", this.resVer);
+        connection.setRequestProperty("RES-VER", this.resVer);
         connection.setRequestProperty("UDID", CryptoGrapher.encode(this.udid));
-        connection.setRequestProperty("IP_ADDRESS", "127.0.0.1");
+        connection.setRequestProperty("IP-ADDRESS", "127.0.0.1");
         connection.setRequestProperty("User-Agent", "Dalvik/2.1.0 (Linux; U; Android 13.3.7; Nexus 42 Build/XYZZ1Y)");
         connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         connection.connect();
@@ -205,13 +229,17 @@ public class CGSSClient {
         return this.post("/load/check", arg);
     }
 
-    public static JSONObject decryptBody(String b64Body, String iv) throws IOException, JSONException {
+    public static JSONObject decryptBody(String b64Body, byte[] iv) throws IOException, JSONException {
         byte[] bin = b64decode(b64Body);
         byte[] data = new byte[bin.length - 32];
         byte[] key = new byte[32];
         System.arraycopy(bin, 0, data, 0, bin.length - 32);
         System.arraycopy(bin, bin.length - 32, key, 0, 32);
-        return Msgpack.decode(b64decode(CryptAES.decryptRJ256(data, iv, new String(key, StandardCharsets.US_ASCII))));
+        byte[] decrypted = CryptAES.decryptRJ256(data, iv, key);
+        String plain = new String(decrypted);
+        byte[] msgpack = b64decode(plain);
+        JSONObject res = Msgpack.decode(msgpack);
+        return res;
     }
 
     private static byte[] bufferConcat(byte[] a, byte[] b) {

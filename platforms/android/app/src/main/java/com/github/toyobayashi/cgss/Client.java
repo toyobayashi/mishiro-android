@@ -303,7 +303,7 @@ public class Client extends CordovaPlugin {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setConnectTimeout(10000);
             connection.setRequestProperty("User-Agent", "Dalvik/2.1.0 (Linux; U; Android 7.0; Nexus 42 Build/XYZZ1Y)");
-            connection.setRequestProperty("X-Unity-Version", "5.4.5p1");
+            connection.setRequestProperty("X-Unity-Version", "2017.4.2f2");
             connection.setRequestProperty("Accept-Encoding", "gzip");
             connection.setRequestProperty("Connection", "Keep-Alive");
             if (fileLength > 0) {

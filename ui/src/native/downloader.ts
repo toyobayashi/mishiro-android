@@ -103,7 +103,7 @@ export async function downloadManifest (resver: string, onProgress?: (data: Prog
   const file = `${window.cordova.file.externalDataDirectory}data/manifest_${resver}.db`
   const ex = await exists(file)
   if (!ex) {
-    const dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/${resver}/manifests/Android_AHigh_SHigh`, file + '.lz4')
+    const dl = new Downloader(`https://asset-starlight-stage.akamaized.net/dl/${resver}/manifests/Android_AHigh_SHigh`, file + '.lz4')
     await dl.download(onProgress)
     await lz4dec(file + '.lz4')
     await unlink(file + '.lz4')
@@ -115,7 +115,7 @@ export async function downloadMaster (resver: string, hash: string, onProgress?:
   const file = `${window.cordova.file.externalDataDirectory}data/master_${resver}.db`
   const ex = await exists(file)
   if (!ex) {
-    const dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/Generic/${hash}`, file + '.lz4')
+    const dl = new Downloader(`https://asset-starlight-stage.akamaized.net/dl/resources/Generic/${hash.substr(0, 2)}/${hash}`, file + '.lz4')
     await dl.download(onProgress)
     await lz4dec(file + '.lz4')
     await unlink(file + '.lz4')
@@ -127,7 +127,7 @@ export async function downloadScore (score: string, hash: string, onProgress?: (
   const file = `${window.cordova.file.externalDataDirectory}score/${score}`
   const ex = await exists(file)
   if (!ex) {
-    const dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/Generic/${hash}`, file + '.lz4')
+    const dl = new Downloader(`https://asset-starlight-stage.akamaized.net/dl/resources/Generic/${hash.substr(0, 2)}/${hash}`, file + '.lz4')
     await dl.download(onProgress)
     await lz4dec(file + '.lz4')
     await unlink(file + '.lz4')

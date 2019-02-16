@@ -19,7 +19,7 @@
   </div>
 
   <div @scroll="scrolled" ref="audioList" :style="{ height: currentPlaying ? 'calc(100% - 70px)' : void 0 }" class="audio-list" :class="{ 'flex-center': liveList.length === 0 && bgmList.length === 0 }" v-swipe-right="swipeRight" v-swipe-left="swipeLeft">
-    <Spinner style="position: static" v-if="!isBrowser && liveList.length === 0 && bgmList.length === 0" />
+    <Spinner style="position: static" v-if="!isBrowser && resourceReady && liveList.length === 0 && bgmList.length === 0" />
     <div v-show="currentTab === 'LIVE'">
       <Item
         v-for="item in liveListDisplay"

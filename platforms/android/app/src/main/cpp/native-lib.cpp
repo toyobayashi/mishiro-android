@@ -4,6 +4,7 @@
 #include <ACBExtractor.h>
 #include "libmp3lame/lame.h"
 #include "hcadecoder/clHCA.h"
+#include "aes/aes.hpp"
 
 std::string ltos(long l) {
     return std::to_string(l);
@@ -169,4 +170,107 @@ Java_com_github_toyobayashi_cgss_Client_wav2mp3(
     std::string jsonString = "{computable:true,loaded:" + ltos(total) + ",total:" + ltos(wavsize) + ",percentage:" + dtos(100 * ((double)(total) / (double)(wavsize))) + ",ended:true}";
     jobject json = env->NewObject(JSONObject, JSONObjectConstructor, env->NewStringUTF(jsonString.c_str()));
     env->CallVoidMethod(callbackContext, success, json);
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_github_toyobayashi_cgss_CGSSClient_aesEncrypt(
+        JNIEnv* env,
+        jclass type,
+        jbyteArray data,
+        jbyteArray key,
+        jbyteArray iv) {
+    jbyte* dataJavaBuf = env->GetByteArrayElements(data, 0);
+    jsize dataLength = env->GetArrayLength(data);
+    jbyte* keyBuf = env->GetByteArrayElements(key, 0);
+    jbyte* ivBuf = env->GetByteArrayElements(iv, 0);
+
+    uint8_t* dataBuf = nullptr;
+
+    int padding = dataLength % 16;
+    uint32_t encryptLength = 0;
+    if (padding != 0) {
+        padding = 16 - padding;
+        encryptLength = (uint32_t) (dataLength + padding);
+        dataBuf = new uint8_t[encryptLength];
+        for (int i = 0; i < dataLength; i++) {
+            dataBuf[i] = (uint8_t) dataJavaBuf[i];
+        }
+        for (int i = 0; i < padding; i++) {
+            dataBuf[i + dataLength] = (uint8_t) padding;
+        }
+    } else {
+        encryptLength = (uint32_t) (dataLength);
+        dataBuf = new uint8_t[dataLength];
+        for (int i = 0; i < dataLength; i++) {
+            dataBuf[i] = (uint8_t) dataJavaBuf[i];
+        }
+    }
+
+    struct AES_ctx ctx;
+    AES_init_ctx_iv(&ctx, (uint8_t*)keyBuf, (uint8_t*)ivBuf);
+    AES_CBC_encrypt_buffer(&ctx, dataBuf, encryptLength);
+
+    jbyteArray res = env->NewByteArray(encryptLength);
+    jbyte* resArr = env->GetByteArrayElements(res, 0);
+    for (int i = 0; i < encryptLength; i++) {
+        resArr[i] = (jbyte) dataBuf[i];
+    }
+
+    delete[] dataBuf;
+
+    env->ReleaseByteArrayElements(data, dataJavaBuf, JNI_ABORT);
+
+    env->ReleaseByteArrayElements(key, keyBuf, JNI_ABORT);
+    env->ReleaseByteArrayElements(iv, ivBuf, JNI_ABORT);
+    env->ReleaseByteArrayElements(res, resArr, 0);
+
+    return res;
+}
+
+extern "C" JNIEXPORT jbyteArray JNICALL
+Java_com_github_toyobayashi_cgss_CGSSClient_aesDecrypt(
+        JNIEnv* env,
+        jclass type,
+        jbyteArray data,
+        jbyteArray key,
+        jbyteArray iv) {
+    jbyte* dataJavaBuf = env->GetByteArrayElements(data, 0);
+    jsize dataLength = env->GetArrayLength(data);
+    jbyte* keyBuf = env->GetByteArrayElements(key, 0);
+    jbyte* ivBuf = env->GetByteArrayElements(iv, 0);
+
+    auto * dataBuf = new uint8_t[dataLength];
+    for (int i = 0; i < dataLength; i++) {
+        dataBuf[i] = (uint8_t) dataJavaBuf[i];
+    }
+
+    struct AES_ctx ctx;
+    AES_init_ctx_iv(&ctx, (uint8_t*)keyBuf, (uint8_t*)ivBuf);
+    AES_CBC_decrypt_buffer(&ctx, dataBuf, (uint32_t)dataLength);
+
+    jbyteArray res;
+    jbyte* resArr = nullptr;
+    uint8_t padding = dataBuf[dataLength - 1];
+    if (padding > 0 && padding <= 16) {
+        res = env->NewByteArray(dataLength - padding);
+        resArr = env->GetByteArrayElements(res, 0);
+        for (int i = 0; i < dataLength - padding; i++) {
+            resArr[i] = (jbyte) dataBuf[i];
+        }
+    } else {
+        res = env->NewByteArray(dataLength);
+        resArr = env->GetByteArrayElements(res, 0);
+        for (int i = 0; i < dataLength; i++) {
+            resArr[i] = (jbyte) dataBuf[i];
+        }
+    }
+
+    delete[] dataBuf;
+
+    env->ReleaseByteArrayElements(data, dataJavaBuf, JNI_ABORT);
+    env->ReleaseByteArrayElements(key, keyBuf, JNI_ABORT);
+    env->ReleaseByteArrayElements(iv, ivBuf, JNI_ABORT);
+    env->ReleaseByteArrayElements(res, resArr, 0);
+
+    return res;
 }

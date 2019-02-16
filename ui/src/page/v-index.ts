@@ -107,6 +107,7 @@ export default class Index extends Vue {
   audioProgress: number = 0
   currentPlaying: BGMItem | LiveItem | null = null
   isPlaying: boolean = false
+  resourceReady: boolean = false
 
   recheck: number = 0
 
@@ -121,6 +122,7 @@ export default class Index extends Vue {
       <h3 style="font-size: 16px">使用第三方库</h3>
       <p>ACBExtractor - <a class="a" href="https://github.com/toyobayashi/ACBExtractor">toyobayashi/ACBExtractor</a></p>
       <p>HCADecoder - <a class="a" href="https://github.com/Nyagamon/HCADecoder">Nyagamon/HCADecoder</a></p>
+      <p>tiny-AES-c - <a class="a" href="https://github.com/kokke/tiny-AES-c">kokke/tiny-AES-c</a></p>
       <p>libmp3lame - <a class="a" href="www.mp3dev.org">www.mp3dev.org</a></p>
       <br/>
       <h3 style="font-size: 16px">欢迎支持mishiro</h3>
@@ -138,51 +140,56 @@ export default class Index extends Vue {
       return
     }
 
-    let scoreFile = getPath(`score/${this.currentPlaying.score}`)
-    const ex = await exists(scoreFile)
-    if (!ex) {
-      this.showLoading('正在下载谱面')
-      scoreFile = await downloadScore(this.currentPlaying.score, this.currentPlaying.scoreHash, (data) => {
-        this.setLoading(data.percentage)
-      })
-      this.hideLoading()
-    }
+    try {
+      let scoreFile = getPath(`score/${this.currentPlaying.score}`)
+      const ex = await exists(scoreFile)
+      if (!ex) {
+        this.showLoading('正在下载谱面')
+        scoreFile = await downloadScore(this.currentPlaying.score, this.currentPlaying.scoreHash, (data) => {
+          this.setLoading(data.percentage)
+        })
+        this.hideLoading()
+      }
 
-    // this.alert(scorePath)
-    let bdb = await DB.openDatabase(scoreFile)
-    let rows = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/__.csv" ESCAPE '/'`)
-    // await bdb.close()
-    const difficulty = await this.showScoreDifficulty(this.currentPlaying, rows.length === 5 ? true : false)
-    if (!difficulty) {
+      // this.alert(scorePath)
+      let bdb = await DB.openDatabase(scoreFile)
+      let rows = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/__.csv" ESCAPE '/'`)
+      // await bdb.close()
+      const difficulty = await this.showScoreDifficulty(this.currentPlaying, rows.length === 5 ? true : false)
+      if (!difficulty) {
+        await bdb.close()
+        return
+      }
+
+      const csv = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/_${difficulty}.csv" ESCAPE '/'`)
       await bdb.close()
-      return
-    }
-
-    const csv = await bdb.query(`SELECT data FROM blobs WHERE name LIKE "%/_${difficulty}.csv" ESCAPE '/'`)
-    await bdb.close()
-    let realCsv = ''
-    if (typeof csv[0].data !== 'string') {
-      let dataString = ''
-      for (let i = 0; i < csv[0].data.length; i++) {
-        dataString += String.fromCharCode(csv[0].data[i])
+      let realCsv = ''
+      if (typeof csv[0].data !== 'string') {
+        let dataString = ''
+        for (let i = 0; i < csv[0].data.length; i++) {
+          dataString += String.fromCharCode(csv[0].data[i])
+        }
+        realCsv = dataString
+      } else {
+        realCsv = csv[0].data
       }
-      realCsv = dataString
-    } else {
-      realCsv = csv[0].data
+
+      this.audio.pause()
+      this.isPlaying = false
+
+      this.$router.push({
+        name: 'score',
+        params: {
+          id: this.currentPlaying.name.split('/')[1].split('.')[0].split('_')[1],
+          fileName: this.currentPlaying.fileName,
+          difficulty,
+          csv: realCsv
+        }
+      })
+    } catch (err) {
+      console.log(err)
+      this.alert(err)
     }
-
-    this.audio.pause()
-    this.isPlaying = false
-
-    this.$router.push({
-      name: 'score',
-      params: {
-        id: this.currentPlaying.name.split('/')[1].split('.')[0].split('_')[1],
-        fileName: this.currentPlaying.fileName,
-        difficulty,
-        csv: realCsv
-      }
-    })
   }
 
   showScoreDifficulty (live: any, hasMasterPlus: boolean) {
@@ -234,7 +241,7 @@ export default class Index extends Vue {
 
     item.status = 'downloading'
     if (item.name.split('/')[0] === 'l') {
-      item.dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/High/Sound/Common/l/${item.hash}`, getPath(`live/${item.name.split('/')[1]}`))
+      item.dl = new Downloader(`https://asset-starlight-stage.akamaized.net/dl/resources/Sound/${item.hash.substr(0, 2)}/${item.hash}`, getPath(`live/${item.name.split('/')[1]}`))
       const acbPath = await item.dl.download((data) => {
         if (data) item.loaded = data.percentage / 2
       })
@@ -257,7 +264,7 @@ export default class Index extends Vue {
         this.isPlaying = true
       }
     } else if (item.name.split('/')[0] === 'b') {
-      item.dl = new Downloader(`http://storage.game.starlight-stage.jp/dl/resources/High/Sound/Common/b/${item.hash}`, getPath(`bgm/${item.name.split('/')[1]}`))
+      item.dl = new Downloader(`https://asset-starlight-stage.akamaized.net/dl/resources/Sound/${item.hash.substr(0, 2)}/${item.hash}`, getPath(`bgm/${item.name.split('/')[1]}`))
       const acbPath = await item.dl.download((data) => {
         if (data) item.loaded = data.percentage / 2
       })
@@ -405,6 +412,7 @@ export default class Index extends Vue {
         try {
           this.appVersion = await getVersion()
           await this.getLatestResource()
+          this.resourceReady = true
           // this.toast(resver)
           this.liveListDisplay = this.liveList = await this.getLiveList()
           // console.log(this.liveList)

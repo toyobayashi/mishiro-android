@@ -8,16 +8,19 @@ cmake_minimum_required(VERSION 3.4.1)
 set(SRC_DIR src/main/cpp/libmp3lame)
 set(HCA_DIR src/main/cpp/hcadecoder)
 set(ACB_DIR src/main/cpp/acbextractor)
+set(AES_DIR src/main/cpp/aes)
 
-include_directories(src/main/cpp/libmp3lame)
-include_directories(src/main/cpp/hcadecoder)
-include_directories(src/main/cpp/acbextractor/include)
+include_directories(${SRC_DIR})
+include_directories(${HCA_DIR})
+include_directories(${ACB_DIR}/include)
+include_directories(${AES_DIR})
 
-aux_source_directory(src/main/cpp/libmp3lame SRC_LIST)
-aux_source_directory(src/main/cpp/hcadecoder HCA_LIST)
-aux_source_directory(src/main/cpp/acbextractor ACB_LIST)
+aux_source_directory(${SRC_DIR} SRC_LIST)
+aux_source_directory(${HCA_DIR} HCA_LIST)
+aux_source_directory(${ACB_DIR} ACB_LIST)
+aux_source_directory(${AES_DIR} AES_LIST)
 
-add_definitions(-DPACKAGE_NAME="com.github.toyobayashi.mishiro")
+add_definitions(-DPACKAGE_NAME="com.github.toyobayashi.mishiro" -DAES256=1)
 
 # Creates and names a library, sets it as either STATIC
 # or SHARED, and provides the relative paths to its source code.
@@ -31,7 +34,7 @@ add_library( # Sets the name of the library.
              SHARED
 
              # Provides a relative path to your source file(s).
-             src/main/cpp/native-lib.cpp ${SRC_LIST} ${HCA_LIST} ${ACB_LIST} )
+             src/main/cpp/native-lib.cpp ${SRC_LIST} ${HCA_LIST} ${ACB_LIST} ${AES_LIST} )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by

@@ -62,7 +62,7 @@ Java_com_github_toyobayashi_cgss_Client_hca2wav(
         jobject self,
         jstring hcaPath,
         jstring wavPath) {
-    clHCA hca(0xF27E3B22, 0x00003657);
+    clHCA *hca = new clHCA(0xF27E3B22, 0x00003657);
 
     const char* hcafile = env->GetStringUTFChars(hcaPath, 0);
     const char* wavfile = env->GetStringUTFChars(wavPath, 0);
@@ -71,8 +71,8 @@ Java_com_github_toyobayashi_cgss_Client_hca2wav(
     int mode = 16;
     int loop = 0;
 
-    auto result = (jboolean)hca.DecodeToWavefile(hcafile, wavfile, volume, mode, loop);
-
+    auto result = (jboolean)hca->DecodeToWavefile(hcafile, wavfile, volume, mode, loop);
+    delete hca;
     env->ReleaseStringUTFChars(hcaPath, hcafile);
     env->ReleaseStringUTFChars(wavPath, wavfile);
     return result;
@@ -128,8 +128,8 @@ Java_com_github_toyobayashi_cgss_Client_wav2mp3(
 
     const int CHANNEL = 2;
 
-    short int wav_buffer[WAV_SIZE * CHANNEL];
-    unsigned char mp3_buffer[MP3_SIZE];
+    short int *wav_buffer = new short int[WAV_SIZE * CHANNEL];
+    unsigned char *mp3_buffer = new unsigned char[MP3_SIZE];
 
     lame_t lame = lame_init();
     lame_set_in_samplerate(lame, 44100);
@@ -151,7 +151,7 @@ Java_com_github_toyobayashi_cgss_Client_wav2mp3(
             std::string jsonString = "{computable:true,loaded:" + ltos(total) + ",total:" + ltos(wavsize) + ",percentage:" + dtos(100 * ((double)(total) / (double)(wavsize))) + ",ended:false}";
             jobject json = env->NewObject(JSONObject, JSONObjectConstructor, env->NewStringUTF(jsonString.c_str()));
             jobject pluginResult = env->NewObject(PluginResult, PluginResultConstructor, ok, json);
-            env->CallVoidMethod(pluginResult, setKeepCallback, (jboolean)true);
+            env->CallVoidMethod(pluginResult, setKeepCallback, static_cast<jboolean>(true));
             env->CallVoidMethod(callbackContext, sendPluginResult, pluginResult);
         } else {
             write = lame_encode_flush(lame, mp3_buffer, MP3_SIZE);
@@ -159,7 +159,9 @@ Java_com_github_toyobayashi_cgss_Client_wav2mp3(
         fwrite(mp3_buffer, sizeof(unsigned char), static_cast<size_t>(write), mp3);
     } while (read != 0);
 
-    lame_mp3_tags_fid(lame, mp3);
+    // lame_mp3_tags_fid(lame, mp3);
+    delete[] wav_buffer;
+    delete[] mp3_buffer;
     lame_close(lame);
     fclose(mp3);
     fclose(wav);

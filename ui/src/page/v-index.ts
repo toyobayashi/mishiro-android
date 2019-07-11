@@ -10,7 +10,7 @@ import ModalDifficulty from '../component/ModalDifficulty.vue'
 import Spinner from '../component/Spinner.vue'
 import { exists, mkdirs, unlink, rmrf } from '../native/cordova-fs'
 import { acb2hca, hca2wav, wav2mp3 } from '../native/audio'
-import * as path from 'path-browserify'
+import * as path from 'path'
 
 type LiveItem = {
   name: string;
@@ -536,7 +536,7 @@ export default class Index extends Vue {
         song.fileName = name + '.mp3'
       } else {
         if (arr.length > 2) {
-          if (arr[2] === 'another') {
+          if (isNaN(Number(arr[2]))) {
             song.fileName = arr[1] + '_' + arr[2] + '-' + musicData.filter(row => Number(row.id) === Number(arr[1]))[0].name.replace(/\\n|\\|\/|<|>|\*|\?|:|"|\|/g, '') + '.mp3'
           } else {
             song.fileName = arr[1] + '_' + arr[2] + '-' + musicData.filter(row => Number(row.id) === Number(arr[1]))[0].name.replace(/\\n|\\|\/|<|>|\*|\?|:|"|\|/g, '') + '（' + charaData.filter(row => Number(row.chara_id) === Number(arr[2]))[0].name + '）.mp3'

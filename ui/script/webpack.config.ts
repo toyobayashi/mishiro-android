@@ -17,6 +17,9 @@ const webpackConfig: Configuration = {
     filename: '[name].js',
     path: getPath(config.outputPath)
   },
+  node: {
+    path: true
+  },
   module: {
     rules: [
       {
@@ -53,7 +56,14 @@ const webpackConfig: Configuration = {
     new HtmlWebpackPlugin({
       title: 'mishiro-android',
       template: getPath('./src/index.html'),
-      chunks: ['main', 'dll', 'common']
+      chunks: ['main', 'dll', 'common'],
+      minify: mode === 'production' ? {
+        removeComments: true,
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        collapseBooleanAttributes: true,
+        removeScriptTypeAttributes: true
+      } : false
     }),
     new DefinePlugin({
       LAST_UPDATE_TIME: JSON.stringify(new Date().toISOString())
@@ -61,12 +71,19 @@ const webpackConfig: Configuration = {
   ],
   optimization: {
     splitChunks: {
-      chunks: 'all',
-      name: 'common',
       cacheGroups: {
         dll: {
+          name: 'dll',
           test: /[\\/]node_modules[\\/]/,
-          name: 'dll'
+          priority: -10,
+          chunks: 'initial'
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          priority: -20,
+          chunks: 'initial',
+          reuseExistingChunk: true
         }
       }
     }

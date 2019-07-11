@@ -1,4 +1,4 @@
-import * as path from 'path-browserify'
+import * as path from 'path'
 
 export function lz4dec (file: string) {
   return new Promise<void>((resolve, reject) => {

@@ -1,4 +1,4 @@
-import * as path from 'path-browserify'
+import * as path from 'path'
 
 const errMap: any = {
   1: 'NOT_FOUND_ERR',

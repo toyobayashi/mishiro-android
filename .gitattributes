@@ -1,0 +1,5 @@
+platforms/android/app/src/main/cpp/**/*.c    linguist-vendored
+platforms/android/app/src/main/cpp/**/*.cc   linguist-vendored
+platforms/android/app/src/main/cpp/**/*.h    linguist-vendored
+platforms/android/app/src/main/cpp/**/*.hpp  linguist-vendored
+platforms/android/app/src/main/cpp/**/*.cpp  linguist-vendored
